@@ -22,9 +22,7 @@ RUN dotnet publish src/AssistIQ.Api/AssistIQ.Api.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-# Run as non-root user for security (built-in .NET user)
-USER app
-
+# Run as root to avoid Render Firecracker permissions issues with .NET 10 preview
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080
