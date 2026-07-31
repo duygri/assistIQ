@@ -22,9 +22,8 @@ RUN dotnet publish src/AssistIQ.Api/AssistIQ.Api.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-# Run as non-root user for security
-RUN adduser --disabled-password --gecos '' --uid 1001 appuser
-USER appuser
+# Run as non-root user for security (built-in .NET user)
+USER app
 
 COPY --from=build /app/publish .
 
