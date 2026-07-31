@@ -9,7 +9,7 @@ COPY src/AssistIQ.Domain/AssistIQ.Domain.csproj src/AssistIQ.Domain/
 COPY src/AssistIQ.Application/AssistIQ.Application.csproj src/AssistIQ.Application/
 COPY src/AssistIQ.Infrastructure/AssistIQ.Infrastructure.csproj src/AssistIQ.Infrastructure/
 COPY src/AssistIQ.Api/AssistIQ.Api.csproj src/AssistIQ.Api/
-RUN dotnet restore AssistIQ.slnx
+RUN dotnet restore src/AssistIQ.Api/AssistIQ.Api.csproj
 
 # Copy remaining source and publish
 COPY . .
