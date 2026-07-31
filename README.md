@@ -302,6 +302,7 @@ The domain also protects the send operation if a draft reaches it without citati
 | Drafts | `POST /api/drafts/{id}/send` | Admin or owner |
 | Admin Logs | `GET /api/audit-logs` | Admin |
 | Admin Logs | `GET /api/usage-logs` | Admin |
+| Analytics | `GET /api/admin/stats` | Admin |
 
 ## Testing Notes
 
@@ -328,8 +329,6 @@ AssistIQ rejects request bodies larger than 256 KiB before controller execution.
 Invalid model input returns a controlled `validation_failed` response with a correlation ID. Oversized requests return `request_too_large` when the application can produce the response. Neither response echoes submitted field values, credentials, request bodies, or internal exception details.
 
 The body limit is configurable through `RequestSecurity:MaxRequestBodySizeBytes`; keep the default or a lower value for Internet-facing deployments unless a reviewed endpoint requires more capacity.
-
-Pagination is intentionally deferred in V1 because the seeded demo data is small. For production hardening, list endpoints such as `GET /api/tickets`, `GET /api/knowledge-documents`, `GET /api/audit-logs`, and `GET /api/usage-logs` should accept page/size parameters and return a paged response envelope.
 
 ## Roadmap
 

@@ -1,6 +1,7 @@
 using System.Text;
 using AssistIQ.Api.Auth;
 using AssistIQ.Api.Errors;
+using AssistIQ.Api.Middleware;
 using AssistIQ.Api.Security;
 using AssistIQ.Application.Abstractions;
 using AssistIQ.Application.Analytics;
@@ -32,6 +33,22 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddAssistIQRateLimiting(builder.Configuration);
 builder.AddAssistIQRequestInputSecurity();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? ["http://localhost:3000", "http://localhost:5173"];
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AssistIQDbContext>("database");
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddDbContext<AssistIQDbContext>(options =>
@@ -98,20 +115,22 @@ else
     app.UseHsts();
 }
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseExceptionHandler();
 app.UseMiddleware<RequestBodySizeLimitMiddleware>();
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapControllers();
 
-app.MapGet("/health", () => Results.Ok(new
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
-    service = "AssistIQ.Api",
-    status = "ok"
-}));
+    Predicate = _ => false
+});
+app.MapHealthChecks("/ready");
 
 if (app.Configuration.GetValue<bool>("ApplyMigrationsOnStartup") ||
     app.Configuration.GetValue<bool>("SeedDemoDataOnStartup"))

@@ -11,7 +11,11 @@ namespace AssistIQ.Api.Controllers;
 [Authorize(Policy = AuthorizationPolicies.AuditLogsView)]
 public sealed class AuditLogsController(AuditLogQueryService service) : ControllerBase
 {
+    /// <summary>
+    /// Lists paginated audit logs.
+    /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<AuditLogDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<AuditLogDto>>> List(
         [FromQuery] PaginationRequest pagination,
         CancellationToken cancellationToken)

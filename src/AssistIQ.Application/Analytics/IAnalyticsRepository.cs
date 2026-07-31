@@ -1,7 +1,3 @@
-using AssistIQ.Domain.Drafts;
-using AssistIQ.Domain.Knowledge;
-using Microsoft.EntityFrameworkCore;
-
 namespace AssistIQ.Application.Analytics;
 
 /// <summary>

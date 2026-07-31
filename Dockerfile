@@ -3,8 +3,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY . .
+# Copy project files first for better layer caching
+COPY AssistIQ.slnx global.json ./
+COPY src/AssistIQ.Domain/AssistIQ.Domain.csproj src/AssistIQ.Domain/
+COPY src/AssistIQ.Application/AssistIQ.Application.csproj src/AssistIQ.Application/
+COPY src/AssistIQ.Infrastructure/AssistIQ.Infrastructure.csproj src/AssistIQ.Infrastructure/
+COPY src/AssistIQ.Api/AssistIQ.Api.csproj src/AssistIQ.Api/
 RUN dotnet restore AssistIQ.slnx
+
+# Copy remaining source and publish
+COPY . .
 RUN dotnet publish src/AssistIQ.Api/AssistIQ.Api.csproj \
     --configuration Release \
     --no-restore \
@@ -13,6 +21,10 @@ RUN dotnet publish src/AssistIQ.Api/AssistIQ.Api.csproj \
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+
+# Run as non-root user for security
+RUN adduser --disabled-password --gecos '' --uid 1001 appuser
+USER appuser
 
 COPY --from=build /app/publish .
 

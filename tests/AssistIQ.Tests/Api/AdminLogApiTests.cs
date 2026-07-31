@@ -71,8 +71,8 @@ public sealed class AdminLogApiTests(CustomWebApplicationFactory factory)
         logs.Should().ContainSingle();
         var log = logs![0];
         log.Model.Should().Be("fake-support-copilot-v1");
-        log.InputTokens.Should().BeGreaterThan(0);
-        log.OutputTokens.Should().BeGreaterThan(0);
+        log.PromptTokens.Should().BeGreaterThan(0);
+        log.CompletionTokens.Should().BeGreaterThan(0);
         log.EstimatedCost.Should().BeGreaterThan(0);
         log.Status.Should().Be(UsageStatus.Succeeded);
     }

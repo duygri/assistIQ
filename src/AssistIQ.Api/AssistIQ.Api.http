@@ -3,12 +3,17 @@
 @AgentToken = replace-with-agent-jwt
 @TicketId = replace-with-ticket-id
 @DraftId = replace-with-draft-id
+@KnowledgeDocumentId = replace-with-doc-id
 
+### Health check
 GET {{AssistIQ.Api_HostAddress}}/health
 Accept: application/json
 
-###
+### Readiness probe
+GET {{AssistIQ.Api_HostAddress}}/health/ready
+Accept: application/json
 
+### 1. Login as Admin
 POST {{AssistIQ.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
@@ -17,8 +22,11 @@ Content-Type: application/json
   "password": "Admin123!"
 }
 
-###
+### 2. Get current user
+GET {{AssistIQ.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{AdminToken}}
 
+### 3. Register a knowledge document
 POST {{AssistIQ.Api_HostAddress}}/api/knowledge-documents
 Authorization: Bearer {{AdminToken}}
 Content-Type: application/json
@@ -30,8 +38,16 @@ Content-Type: application/json
   "textContent": "Billing details can be updated from workspace settings."
 }
 
-###
+### 4. List knowledge documents
+GET {{AssistIQ.Api_HostAddress}}/api/knowledge-documents?page=1&pageSize=10
+Authorization: Bearer {{AdminToken}}
+Accept: application/json
 
+### 5. Disable a knowledge document
+POST {{AssistIQ.Api_HostAddress}}/api/knowledge-documents/{{KnowledgeDocumentId}}/disable
+Authorization: Bearer {{AdminToken}}
+
+### 6. Login as Support Agent
 POST {{AssistIQ.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
@@ -40,8 +56,7 @@ Content-Type: application/json
   "password": "Agent123!"
 }
 
-###
-
+### 7. Create a ticket
 POST {{AssistIQ.Api_HostAddress}}/api/tickets
 Authorization: Bearer {{AgentToken}}
 Content-Type: application/json
@@ -52,8 +67,17 @@ Content-Type: application/json
   "customerEmail": "linh@example.com"
 }
 
-###
+### 8. List tickets (paginated)
+GET {{AssistIQ.Api_HostAddress}}/api/tickets?page=1&pageSize=10
+Authorization: Bearer {{AgentToken}}
+Accept: application/json
 
+### 9. Get ticket details
+GET {{AssistIQ.Api_HostAddress}}/api/tickets/{{TicketId}}
+Authorization: Bearer {{AgentToken}}
+Accept: application/json
+
+### 10. Generate a draft
 POST {{AssistIQ.Api_HostAddress}}/api/tickets/{{TicketId}}/drafts/generate
 Authorization: Bearer {{AgentToken}}
 Content-Type: application/json
@@ -62,19 +86,30 @@ Content-Type: application/json
   "instructions": "Use a concise and friendly tone."
 }
 
-###
+### 11. Edit a draft
+PATCH {{AssistIQ.Api_HostAddress}}/api/drafts/{{DraftId}}
+Authorization: Bearer {{AgentToken}}
+Content-Type: application/json
 
+{
+  "editedAnswer": "Thank you for reaching out! You can update your billing details from the workspace settings page."
+}
+
+### 12. Send a draft
 POST {{AssistIQ.Api_HostAddress}}/api/drafts/{{DraftId}}/send
 Authorization: Bearer {{AgentToken}}
 
-###
-
-GET {{AssistIQ.Api_HostAddress}}/api/audit-logs
+### 13. View audit logs (Admin only)
+GET {{AssistIQ.Api_HostAddress}}/api/audit-logs?page=1&pageSize=10
 Authorization: Bearer {{AdminToken}}
 Accept: application/json
 
-###
+### 14. View usage logs (Admin only)
+GET {{AssistIQ.Api_HostAddress}}/api/usage-logs?page=1&pageSize=10
+Authorization: Bearer {{AdminToken}}
+Accept: application/json
 
-GET {{AssistIQ.Api_HostAddress}}/api/usage-logs
+### 15. View admin stats (Admin only)
+GET {{AssistIQ.Api_HostAddress}}/api/admin/stats
 Authorization: Bearer {{AdminToken}}
 Accept: application/json
