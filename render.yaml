@@ -11,7 +11,7 @@ services:
           name: assistiq-db
           property: connectionString
       - key: ASPNETCORE_ENVIRONMENT
-        value: Production
+        value: Development
       - key: ApplyMigrationsOnStartup
         value: "true"
       - key: SeedDemoDataOnStartup
