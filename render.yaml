@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: assistiq-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /ready
+    envVars:
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: assistiq-db
+          property: connectionString
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ApplyMigrationsOnStartup
+        value: "true"
+      - key: SeedDemoDataOnStartup
+        value: "true"
+      - key: Jwt__SigningKey
+        generateValue: true
+
+databases:
+  - name: assistiq-db
+    plan: free
