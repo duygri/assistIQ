@@ -5,6 +5,7 @@ using AssistIQ.Application.Knowledge;
 using AssistIQ.Application.Tickets;
 using AssistIQ.Application.Drafts;
 using AssistIQ.Application.UsageLogs;
+using AssistIQ.Application.Common;
 using AssistIQ.Domain.Usage;
 using FluentAssertions;
 
@@ -66,10 +67,10 @@ public sealed class AdminLogApiTests(CustomWebApplicationFactory factory)
         var response = await client.GetAsync("/api/usage-logs");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var logs = await response.Content.ReadFromJsonAsync<IReadOnlyList<UsageLogDto>>();
-        logs.Should().NotBeNull();
-        logs.Should().ContainSingle();
-        var log = logs![0];
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<UsageLogDto>>();
+        result.Should().NotBeNull();
+        result!.Data.Should().ContainSingle();
+        var log = result.Data[0];
         log.Model.Should().Be("fake-support-copilot-v1");
         log.PromptTokens.Should().BeGreaterThan(0);
         log.CompletionTokens.Should().BeGreaterThan(0);
